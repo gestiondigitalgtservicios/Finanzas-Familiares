@@ -118,3 +118,17 @@ En Supabase, configura **Authentication → URL Configuration → Site URL** con
 | La demo no guarda una foto        | El almacenamiento del navegador está lleno; usa una imagen menor o restablece los ejemplos.        |
 
 No hay procesos programados, servicios adicionales, migraciones automáticas ni facturación bancaria conectada. Los pagos se registran manualmente.
+
+## Instalar como PWA
+
+La compilación genera el manifiesto, iconos y service worker automáticamente. No requiere cambios en Supabase ni dependencias nuevas. Publica normalmente en Vercel con HTTPS.
+
+- Android/Chrome o Edge: abre la dirección publicada y usa «Instalar Entre dos» en la parte superior, o la opción de instalación del navegador.
+- iPhone/iPad: abre la dirección en Safari → Compartir → Agregar a pantalla de inicio.
+- Computadora: utiliza la opción de instalación en Chrome o Edge.
+
+La app instalada se abre en su propia ventana. Solo se guardan en la caché PWA los archivos de interfaz: no las respuestas de Supabase ni las fotos. La sincronización de datos reales requiere internet; no hay cola de operaciones offline. La demostración conserva su almacenamiento local existente.
+
+Las actualizaciones se descargan al visitar la app y se activan después de cerrar todas sus ventanas/pestañas y volver a abrirla. No se fuerza una recarga durante un formulario.
+
+Para probar la PWA localmente: `npm run build` y `npm run preview`. Abre la dirección localhost indicada. El modo `npm run dev` no registra el service worker, para evitar que una versión en caché interfiera con el desarrollo.

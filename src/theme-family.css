@@ -1693,3 +1693,35 @@ textarea {
     font-size: 1.8rem;
   }
 }
+
+.install-app {
+  position: relative;
+  z-index: 60;
+  background: #e0f5f2;
+  color: #126764;
+  padding: 8px 20px;
+  font-size: 0.85rem;
+}
+.install-app summary {
+  cursor: pointer;
+  font-weight: 700;
+  width: fit-content;
+  margin-left: auto;
+}
+.install-app > div {
+  max-width: 620px;
+  margin: 12px auto;
+  line-height: 1.6;
+}
+.install-app p {
+  margin-bottom: 10px;
+}
+.install-app small {
+  display: block;
+  margin-top: 10px;
+}
+@media (display-mode: standalone) {
+  .install-app {
+    display: none;
+  }
+}
