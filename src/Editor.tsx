@@ -334,6 +334,15 @@ export function Editor({
                     : "De quién es",
               )}
               {account()}
+              {kind === "income" && (
+                <p className="form-note span2">
+                  Este ingreso se sumará a la cuenta{" "}
+                  {s.accounts.find((a) => a.id === chosenAccount)?.name ||
+                    "seleccionada"}
+                  . Regístralo cuando el dinero realmente entre; el sueldo
+                  esperado del mes no es saldo disponible.
+                </p>
+              )}
               {kind === "expense" && selectOwner("Quién pagó", "paidBy", payer)}
               {kind === "transfer" &&
                 account("to", "Cuenta de destino", item?.to)}
@@ -447,7 +456,12 @@ export function Editor({
             <>
               {name()}
               {selectOwner()}
-              {amount("Saldo inicial (Q)", "opening", item?.opening || 0, "0")}
+              {amount(
+                "Dinero real al iniciar (Q)",
+                "opening",
+                item?.opening || 0,
+                "0",
+              )}
               <label>
                 Tipo
                 <select name="accountType" defaultValue={item?.type || "Banco"}>
@@ -457,8 +471,9 @@ export function Editor({
                 </select>
               </label>
               <p className="form-note span2">
-                Usa el saldo al comenzar a llevar el control. Los movimientos
-                posteriores se sumarán o restarán.
+                Es el dinero que ya había en esta cuenta al empezar a usar la
+                app. No pongas aquí ingresos mensuales esperados: registra cada
+                ingreso cuando lo recibas en Movimientos.
               </p>
             </>
           )}

@@ -119,6 +119,8 @@ En Supabase, configura **Authentication → URL Configuration → Site URL** con
 
 No hay procesos programados, servicios adicionales, migraciones automáticas ni facturación bancaria conectada. Los pagos se registran manualmente.
 
+Si aparece «El hogar no es visible para esta cuenta», ejecuta `supabase/03_checks.sql` en el SQL Editor del proyecto indicado por `VITE_SUPABASE_URL`. En el primer resultado, ambos correos deben tener `cuenta_creada = true`, `miembro_autorizado = true` y `correo_confirmado = true`. La consulta del hogar debe devolver `id = 1`. Si falta la tabla o el hogar, ejecuta `01_schema.sql`; si falta un miembro, crea primero las dos cuentas en Authentication y luego ejecuta `02_members.sql`. Si cambiaste las variables de Vercel, vuelve a desplegar y abre la versión actualizada de la PWA.
+
 ## Instalar como PWA
 
 La compilación genera el manifiesto, iconos y service worker automáticamente. No requiere cambios en Supabase ni dependencias nuevas. Publica normalmente en Vercel con HTTPS.
@@ -132,3 +134,20 @@ La app instalada se abre en su propia ventana. Solo se guardan en la caché PWA 
 Las actualizaciones se descargan al visitar la app y se activan después de cerrar todas sus ventanas/pestañas y volver a abrirla. No se fuerza una recarga durante un formulario.
 
 Para probar la PWA localmente: `npm run build` y `npm run preview`. Abre la dirección localhost indicada. El modo `npm run dev` no registra el service worker, para evitar que una versión en caché interfiera con el desarrollo.
+
+## APK de lanzamiento firmado (Android)
+
+El APK `debug` es solo de prueba. Para instalar y distribuir una versión de lanzamiento, conserva una clave privada de firma. No la subas a GitHub ni compartas la contraseña. Android Studio JBR debe estar instalado.
+
+Desde PowerShell, en la carpeta raíz del proyecto:
+
+```powershell
+cd "C:\Users\usuario\Desktop\reportes mensuales\varios\Proyecto\DATOS\Finanzas\hogar"
+& ".\android\build-release.ps1"
+```
+
+La primera ejecución crea `%USERPROFILE%\.android\entre-dos-release.p12` y solicita una contraseña en la terminal. En el aviso de contraseña de clave privada de `keytool`, pulsa Enter para reutilizar la contraseña del almacén. El script vuelve a pedirla de forma oculta para firmar y compilar. El APK queda en `android\app\build\outputs\apk\release\app-release.apk`.
+
+Guarda una copia segura del `.p12` y la contraseña en un gestor de contraseñas o almacenamiento cifrado separado. Sin ambos no se podrán firmar actualizaciones compatibles de esta app. El `.gitignore` los excluye.
+
+Para pasar de la APK debug a la release puede ser necesario desinstalar la anterior por tener firmas distintas. Los registros en Supabase permanecen en la nube, pero la sesión local se cerrará. Las APK release instaladas directamente todavía pueden mostrar avisos de Play Protect porque Google no reconoce una instalación lateral nueva; no se puede garantizar eliminar ese aviso sin distribuirla a través de Google Play. No desactives Play Protect para ocultarlo.

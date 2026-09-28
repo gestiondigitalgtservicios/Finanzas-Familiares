@@ -963,6 +963,23 @@ header {
   gap: 10px;
   margin-top: 20px;
 }
+.account-primary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+.account-activity {
+  margin-top: 16px;
+  border-top: 1px solid #edf0e7;
+  padding-top: 14px;
+}
+.account-activity summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+.account-activity .mini-entry {
+  gap: 8px;
+}
 .icon-button {
   display: inline-flex;
   align-items: center;

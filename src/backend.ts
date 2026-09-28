@@ -8,11 +8,18 @@ export async function fetchState() {
     .from("household")
     .select("data,version")
     .eq("id", 1)
-    .single();
-  if (error)
-    throw Error(
-      "No se pudo cargar el hogar. Verifica el SQL y el acceso de tu cuenta.",
-    );
+    .maybeSingle();
+  if (error) {
+    if (error.code === "42P01" || error.code === "PGRST205")
+      throw Error("No existe la tabla del hogar. Ejecuta supabase/01_schema.sql en el proyecto conectado.");
+    if (error.code === "42501")
+      throw Error("Tu cuenta no tiene permiso para leer el hogar. Ejecuta supabase/02_members.sql después de crear las dos cuentas.");
+    if (!error.code || error.code === "")
+      throw Error("No se pudo conectar con Supabase. Comprueba tu conexión y la URL del proyecto.");
+    throw Error(`No se pudo cargar el hogar (código ${error.code}). Revisa supabase/03_checks.sql.`);
+  }
+  if (!data)
+    throw Error("El hogar no es visible para esta cuenta. Comprueba que 01_schema.sql y 02_members.sql se ejecutaron en el mismo proyecto y que tu correo figura en household_members.");
   return data as { data: State; version: number };
 }
 export async function saveState(data: State, version: number) {

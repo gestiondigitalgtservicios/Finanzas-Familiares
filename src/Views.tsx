@@ -22,6 +22,7 @@ import {
 import {
   money,
   accountBalance,
+  accountEntryEffect,
   reserved,
   loanBalance,
   billsFor,
@@ -336,43 +337,104 @@ export function Views({
         <div className="cards-grid">
           {s.accounts
             .filter((a) => match(a.owner))
-            .map((a) => (
-              <section className="panel account-card" key={a.id}>
-                <div className="section-title">
-                  <span className="icon-circle green">
-                    <Wallet size={20} />
-                  </span>
-                  <span className={"person " + a.owner}>
-                    {ownerName(s, a.owner)}
-                  </span>
-                </div>
-                <h2>{a.name}</h2>
-                <small>{a.type}</small>
-                <strong className="large-number">
-                  {money(accountBalance(s, a.id))}
-                </strong>
-                <div className="detail-row">
-                  <span>Reservado en metas</span>
-                  <b>{money(reserved(s, a.id))}</b>
-                </div>
-                <div className="detail-row">
-                  <span>Disponible</span>
-                  <b>{money(accountBalance(s, a.id) - reserved(s, a.id))}</b>
-                </div>
-                <div className="card-actions">
-                  <button
-                    className="text-button"
-                    onClick={() => open({ type: "entry", kind: "transfer" })}
-                  >
-                    Transferir
-                  </button>
-                  <div>
-                    {edit("account", a)}
-                    {del("accounts", a)}
+            .map((a) => {
+              const activity = s.entries
+                .filter((e) => accountEntryEffect(e, a.id) !== 0)
+                .sort(
+                  (first, second) =>
+                    second.date.localeCompare(first.date) ||
+                    second.updatedAt.localeCompare(first.updatedAt),
+                );
+              return (
+                <section className="panel account-card" key={a.id}>
+                  <div className="section-title">
+                    <span className="icon-circle green">
+                      <Wallet size={20} />
+                    </span>
+                    <span className={"person " + a.owner}>
+                      {ownerName(s, a.owner)}
+                    </span>
                   </div>
-                </div>
-              </section>
-            ))}
+                  <h2>{a.name}</h2>
+                  <small>{a.type}</small>
+                  <strong className="large-number">
+                    {money(accountBalance(s, a.id))}
+                  </strong>
+                  <div className="detail-row">
+                    <span>Dinero real al iniciar</span>
+                    <b>{money(a.opening)}</b>
+                  </div>
+                  <div className="detail-row">
+                    <span>Movimientos acumulados</span>
+                    <b>{money(accountBalance(s, a.id) - a.opening)}</b>
+                  </div>
+                  <div className="detail-row">
+                    <span>Reservado en metas</span>
+                    <b>{money(reserved(s, a.id))}</b>
+                  </div>
+                  <div className="detail-row">
+                    <span>Disponible</span>
+                    <b>{money(accountBalance(s, a.id) - reserved(s, a.id))}</b>
+                  </div>
+                  <div className="card-actions">
+                    <div className="account-primary-actions">
+                      <button
+                        className="text-button"
+                        onClick={() => open({ type: "account", item: a })}
+                      >
+                        Corregir saldo inicial
+                      </button>
+                      <button
+                        className="text-button"
+                        onClick={() =>
+                          open({ type: "entry", kind: "transfer" })
+                        }
+                      >
+                        Transferir
+                      </button>
+                    </div>
+                    <div>
+                      {edit("account", a)}
+                      {del("accounts", a)}
+                    </div>
+                  </div>
+                  <details className="account-activity">
+                    <summary>
+                      Actividad de esta cuenta ({activity.length})
+                    </summary>
+                    <p className="form-note">
+                      Incluye movimientos de ambos, aunque filtres por una
+                      persona.
+                    </p>
+                    {activity.map((e) => {
+                      const effect = accountEntryEffect(e, a.id);
+                      return (
+                        <div className="mini-entry" key={e.id}>
+                          <div>
+                            <b>{e.name}</b>
+                            <small>
+                              {e.date.split("-").reverse().join("/")} ·{" "}
+                              {ownerName(s, e.owner)}
+                            </small>
+                          </div>
+                          <span
+                            className={effect > 0 ? "positive" : "negative"}
+                          >
+                            {effect > 0 ? "+" : "−"} {money(Math.abs(effect))}
+                          </span>
+                          {edit("entry", e)}
+                        </div>
+                      );
+                    })}
+                    {!activity.length && (
+                      <p className="form-note">
+                        Aún no hay movimientos que cambien este saldo.
+                      </p>
+                    )}
+                  </details>
+                </section>
+              );
+            })}
         </div>
         {!s.accounts.filter((a) => match(a.owner)).length && (
           <Empty

@@ -139,18 +139,19 @@ export const blank = (): State => ({
 });
 export function accountBalance(s: State, id: string) {
   let balance = s.accounts.find((a) => a.id === id)?.opening || 0;
-  for (const e of s.entries) {
-    if (e.account === id) {
-      if (["income", "loan_received", "loan_recovery"].includes(e.kind))
-        balance += e.amount;
-      if (
-        ["expense", "transfer", "loan_payment", "loan_given"].includes(e.kind)
-      )
-        balance -= e.amount;
-    }
-    if (e.kind === "transfer" && e.to === id) balance += e.amount;
-  }
+  for (const e of s.entries) balance += accountEntryEffect(e, id);
   return balance;
+}
+export function accountEntryEffect(e: Entry, id: string) {
+  let effect = 0;
+  if (e.account === id) {
+    if (["income", "loan_received", "loan_recovery"].includes(e.kind))
+      effect += e.amount;
+    if (["expense", "transfer", "loan_payment", "loan_given"].includes(e.kind))
+      effect -= e.amount;
+  }
+  if (e.kind === "transfer" && e.to === id) effect += e.amount;
+  return effect;
 }
 export function reserved(
   s: State,
